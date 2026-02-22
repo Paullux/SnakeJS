@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake — Nokia 3310</title>
+  <meta name="description" content="Jeu Snake style Nokia 3310 avec tableau des meilleurs scores." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="phone-wrapper">
+    <!-- Corps du Nokia 3310 -->
+    <div class="phone-body">
+
+      <!-- Haut du téléphone -->
+      <div class="phone-top">
+        <div class="speaker-grill">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <!-- Écran LCD -->
+      <div class="screen-bezel">
+        <div class="screen-lcd" id="screen">
+          <canvas id="gameCanvas" width="336" height="288"></canvas>
+
+          <!-- Overlay : Écran titre -->
+          <div class="overlay" id="titleScreen">
+            <div class="title-logo">SNAKE</div>
+            <div class="title-sub">Nokia</div>
+            <div class="blink title-start">PRESS START</div>
+            <div class="title-hint">↑↓←→ / WASD</div>
+          </div>
+
+          <!-- Overlay : Game Over -->
+          <div class="overlay hidden" id="gameoverScreen">
+            <div class="go-title">GAME OVER</div>
+            <div class="go-score" id="goScore">Score: 0</div>
+            <div class="go-name-label">Entrez votre nom :</div>
+            <input type="text" id="playerName" maxlength="10" placeholder="AAA" autocomplete="off" />
+            <button id="submitScore">SUBMIT</button>
+            <button id="skipScore">SKIP</button>
+          </div>
+
+          <!-- Overlay : Leaderboard -->
+          <div class="overlay hidden" id="leaderboardScreen">
+            <div class="lb-title">TOP 10</div>
+            <ol id="lbList"></ol>
+            <div class="blink lb-back">[ BACK ]</div>
+          </div>
+
+          <!-- Scanlines -->
+          <div class="scanlines"></div>
+        </div>
+
+        <!-- HUD score / level (sous l'écran, style pixels) -->
+        <div class="hud">
+          <span>SCR <span id="hudScore">0</span></span>
+          <span>LVL <span id="hudLevel">1</span></span>
+        </div>
+      </div>
+
+      <!-- Zone de boutons -->
+      <div class="buttons-area">
+        <!-- Boutons gauche/droite navigations -->
+        <div class="btn-row softkeys">
+          <button class="softkey" id="btnMenu">☰</button>
+          <div class="center-logo">nokia</div>
+          <button class="softkey" id="btnLeaderboard">🏆</button>
+        </div>
+
+        <!-- Joystick 4 directions -->
+        <div class="dpad">
+          <button class="dpad-btn dpad-up"   id="btnUp"   aria-label="Haut">▲</button>
+          <div class="dpad-middle">
+            <button class="dpad-btn dpad-left"  id="btnLeft"  aria-label="Gauche">◀</button>
+            <button class="dpad-btn dpad-center" id="btnCenter" aria-label="OK">OK</button>
+            <button class="dpad-btn dpad-right" id="btnRight" aria-label="Droite">▶</button>
+          </div>
+          <button class="dpad-btn dpad-down"  id="btnDown"  aria-label="Bas">▼</button>
+        </div>
+
+        <!-- Touches numériques déco -->
+        <div class="numpad">
+          <button class="num-btn">1</button>
+          <button class="num-btn">2</button>
+          <button class="num-btn">3</button>
+          <button class="num-btn">4</button>
+          <button class="num-btn">5</button>
+          <button class="num-btn">6</button>
+          <button class="num-btn">7</button>
+          <button class="num-btn">8</button>
+          <button class="num-btn">9</button>
+          <button class="num-btn num-star">*</button>
+          <button class="num-btn">0</button>
+          <button class="num-btn num-hash">#</button>
+        </div>
+      </div>
+
+      <!-- Antenne décorative -->
+      <div class="antenna"></div>
+    </div>
+  </div>
+
+  <script src="leaderboard.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

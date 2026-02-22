@@ -1,0 +1,402 @@
+/* ============================================================
+   Nokia 3310 Snake — CSS
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --nokia-body:    #c8c5bc;
+  --nokia-dark:    #5a5750;
+  --nokia-mid:     #9e9b93;
+  --nokia-light:   #e2dfd8;
+  --lcd-bg:        #849669;
+  --lcd-fg:        #2c3a1e;
+  --lcd-shadow:    #3d4a2d;
+  --lcd-shine:     #a8b88a;
+  --btn-face:      #b0ada6;
+  --btn-shadow:    #6a6760;
+  --btn-shine:     #d8d5ce;
+  --dpad-face:     #464340;
+  --dpad-center:   #808080;
+  --font-pixel:    'Press Start 2P', monospace;
+}
+
+body {
+  background: radial-gradient(ellipse at center, #2a2520 0%, #111 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-pixel);
+  overflow-x: hidden;
+}
+
+/* ── Phone Wrapper ── */
+.phone-wrapper {
+  perspective: 1200px;
+  padding: 20px;
+}
+
+.phone-body {
+  position: relative;
+  width: 280px;
+  background: linear-gradient(160deg, var(--nokia-light) 0%, var(--nokia-body) 40%, var(--nokia-mid) 100%);
+  border-radius: 32px 32px 50% 50% / 20px 20px 40px 40px;
+  padding: 18px 16px 24px;
+  box-shadow:
+    0 2px 0 #fff8 inset,
+    -3px 0 6px #0004 inset,
+    3px 0 6px #0002 inset,
+    0 20px 60px #000a,
+    0 4px 12px #0006;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: floatIn 0.6s ease-out;
+}
+
+@keyframes floatIn {
+  from { transform: translateY(30px) rotateX(8deg); opacity: 0; }
+  to   { transform: translateY(0)    rotateX(0deg); opacity: 1; }
+}
+
+/* ── Antenne ── */
+.antenna {
+  position: absolute;
+  top: -28px;
+  right: 24px;
+  width: 8px;
+  height: 30px;
+  background: linear-gradient(to bottom, #e8e5de, #9e9b93);
+  border-radius: 4px 4px 2px 2px;
+  box-shadow: 0 -6px 0 6px #b0ada6, -1px 0 2px #0004 inset;
+}
+
+/* ── Top speaker ── */
+.phone-top {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.speaker-grill {
+  display: flex;
+  gap: 4px;
+  background: var(--nokia-dark);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.speaker-grill span {
+  display: block;
+  width: 3px;
+  height: 14px;
+  background: #302e2a;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 #5a5750 inset;
+}
+
+/* ── Screen Bezel ── */
+.screen-bezel {
+  width: 100%;
+  background: var(--nokia-dark);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 3px 8px #0007, 0 1px 0 #fff3 inset;
+}
+
+/* ── LCD Screen ── */
+.screen-lcd {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 7 / 6;
+  background: var(--lcd-bg);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 2px #1a1f10,
+    0 0 20px #4a5a2a44 inset,
+    0 2px 4px #0006 inset;
+}
+
+/* Reflet d'écran */
+.screen-lcd::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Scanlines */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.06) 2px,
+    rgba(0,0,0,0.06) 4px
+  );
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Canvas */
+#gameCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* HUD */
+.hud {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 6px 0;
+  font-size: 7px;
+  color: var(--lcd-shine);
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px #0006;
+}
+
+/* ── Overlays ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  background: var(--lcd-bg);
+  color: var(--lcd-fg);
+  font-family: var(--font-pixel);
+  text-align: center;
+  padding: 10px;
+}
+.overlay.hidden { display: none; }
+
+/* Title */
+.title-logo {
+  font-size: 22px;
+  color: var(--lcd-shadow);
+  text-shadow: 2px 2px 0 var(--lcd-shine);
+  letter-spacing: 2px;
+}
+.title-sub {
+  font-size: 8px;
+  color: var(--lcd-shadow);
+  letter-spacing: 6px;
+  margin-top: -4px;
+}
+.title-start {
+  font-size: 7px;
+  margin-top: 10px;
+}
+.title-hint {
+  font-size: 5px;
+  color: var(--lcd-shadow);
+  opacity: 0.7;
+}
+
+/* Game Over */
+.go-title  { font-size: 14px; color: var(--lcd-shadow); letter-spacing: 1px; }
+.go-score  { font-size: 7px; }
+.go-name-label { font-size: 6px; margin-top: 4px; }
+
+#playerName {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  background: var(--lcd-shadow);
+  color: var(--lcd-shine);
+  border: none;
+  outline: none;
+  padding: 4px 6px;
+  text-align: center;
+  width: 80px;
+  border-radius: 2px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+#playerName::placeholder { opacity: 0.5; }
+
+#submitScore, #skipScore {
+  font-family: var(--font-pixel);
+  font-size: 6px;
+  background: var(--lcd-shadow);
+  color: var(--lcd-shine);
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  transition: background 0.1s;
+}
+#submitScore:hover { background: var(--lcd-fg); }
+#skipScore { background: transparent; color: var(--lcd-shadow); text-decoration: underline; }
+
+/* Leaderboard */
+.lb-title {
+  font-size: 12px;
+  color: var(--lcd-shadow);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+#lbList {
+  list-style: none;
+  width: 100%;
+  padding: 0 6px;
+}
+#lbList li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 5.5px;
+  color: var(--lcd-fg);
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(44,58,30,0.2);
+}
+#lbList li:first-child { color: var(--lcd-shadow); font-size: 6px; }
+.lb-back {
+  font-size: 6px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+/* ── Blink animation ── */
+.blink { animation: blink 1s step-end infinite; }
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ── Buttons Area ── */
+.buttons-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Softkeys row */
+.softkeys {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 8px;
+}
+.softkey {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  background: linear-gradient(to bottom, var(--btn-shine), var(--btn-face));
+  border: none;
+  border-radius: 6px;
+  width: 36px;
+  height: 22px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--btn-shadow), 0 1px 0 #fff6 inset;
+  transition: transform 0.07s, box-shadow 0.07s;
+  display: flex; align-items: center; justify-content: center;
+}
+.softkey:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--btn-shadow);
+}
+
+.center-logo {
+  font-family: serif;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--nokia-dark);
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+
+/* D-Pad */
+.dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.dpad-middle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.dpad-btn {
+  background: linear-gradient(135deg, #5a5750, var(--dpad-face));
+  border: none;
+  color: #ccc8c0;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #1a1816, 0 1px 0 #fff2 inset;
+  transition: transform 0.07s, box-shadow 0.07s;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none;
+}
+.dpad-btn:active { transform: scale(0.93); box-shadow: 0 1px 0 #1a1816; }
+
+.dpad-up, .dpad-down {
+  width: 44px; height: 28px;
+  border-radius: 6px 6px 4px 4px;
+}
+.dpad-down { border-radius: 4px 4px 6px 6px; }
+
+.dpad-left, .dpad-right {
+  width: 28px; height: 44px;
+  border-radius: 6px 4px 4px 6px;
+}
+.dpad-right { border-radius: 4px 6px 6px 4px; }
+
+.dpad-center {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #8a8680, #3a3836);
+  font-size: 7px;
+  font-family: var(--font-pixel);
+  color: #ffd;
+  box-shadow: 0 2px 4px #0008, 0 1px 0 #fff3 inset;
+}
+
+/* Numpad */
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  width: 100%;
+  padding: 0 8px;
+}
+.num-btn {
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  background: linear-gradient(to bottom, var(--btn-shine), var(--btn-face));
+  border: none;
+  border-radius: 6px;
+  height: 26px;
+  cursor: pointer;
+  color: var(--nokia-dark);
+  box-shadow: 0 3px 0 var(--btn-shadow), 0 1px 0 #fff6 inset;
+  transition: transform 0.07s, box-shadow 0.07s;
+}
+.num-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--btn-shadow);
+}
+
+/* ── Responsive ── */
+@media (max-width: 340px) {
+  .phone-body { width: 96vw; }
+}
+@media (min-width: 600px) {
+  .phone-body { width: 300px; }
+  body { padding: 20px 0; }
+}
