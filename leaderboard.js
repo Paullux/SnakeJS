@@ -1,21 +1,29 @@
 /**
- * Leaderboard — GitHub Gist
+ * Leaderboard — GitHub Gist (lecture) + workflow_dispatch (écriture)
  *
- * Configuration injectée au build par GitHub Actions :
- *   __GIST_TOKEN__  → token PAT scope "gist" uniquement
- *   __GIST_ID__     → ID du Gist qui stocke le JSON des scores
+ * Architecture sécurisée :
+ *   - Lecture  : GET public sur le Gist, pas de token nécessaire
+ *   - Écriture : déclenche le workflow "submit-score.yml" via l'API GitHub
+ *                Le GIST_TOKEN reste 100% côté serveur (secret GitHub Actions)
  *
- * En développement local, ces valeurs restent sous forme de placeholder
- * et le leaderboard utilisera des données mock.
+ * Variables injectées au build par GitHub Actions (deploy.yml) :
+ *   __ACTIONS_TOKEN__   → PAT fine-grained, scope "Actions: Read & write" uniquement
+ *   __GIST_ID__         → ID du Gist public/secret des scores
+ *   __REPO_OWNER__      → ex: Paullux
+ *   __REPO_NAME__       → ex: SnakeJS
  */
 
-const GIST_TOKEN = '__GIST_TOKEN__';
+const ACTIONS_TOKEN = '__ACTIONS_TOKEN__';
 const GIST_ID = '__GIST_ID__';
+const REPO_OWNER = '__REPO_OWNER__';
+const REPO_NAME = '__REPO_NAME__';
 const GIST_FILE = 'snake_scores.json';
+const WORKFLOW_FILE = 'submit-score.yml';
+const BRANCH = 'main';
 
-const IS_CONFIGURED = !GIST_TOKEN.startsWith('__') && !GIST_ID.startsWith('__');
+const IS_CONFIGURED = !ACTIONS_TOKEN.startsWith('__') && !GIST_ID.startsWith('__');
 
-// Données mock pour le dev local
+// Données mock pour le développement local
 const MOCK_SCORES = [
     { name: 'NOK', score: 990 },
     { name: 'AAA', score: 780 },
@@ -25,7 +33,7 @@ const MOCK_SCORES = [
 ];
 
 /**
- * Lit le leaderboard depuis le Gist (public, pas besoin de token).
+ * Lit le leaderboard depuis le Gist (public, aucun token nécessaire).
  * @returns {Promise<Array<{name:string, score:number}>>}
  */
 async function fetchLeaderboard() {
@@ -46,7 +54,8 @@ async function fetchLeaderboard() {
 }
 
 /**
- * Écrit le nouveau score dans le Gist (PATCH, nécessite le token).
+ * Soumet un score en déclenchant le workflow GitHub Actions "submit-score.yml".
+ * Le workflow s'exécute côté serveur avec le GIST_TOKEN (secret).
  * @param {string} name
  * @param {number} score
  */
@@ -56,35 +65,31 @@ async function submitScore(name, score) {
         return;
     }
     try {
-        // 1. Lecture des scores actuels
-        const scores = await fetchLeaderboard();
-
-        // 2. Ajout + tri + top 10
-        scores.push({ name, score });
-        scores.sort((a, b) => b.score - a.score);
-        const top10 = scores.slice(0, 10);
-
-        // 3. Écriture dans le Gist
-        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            method: 'PATCH',
-            headers: {
-                Accept: 'application/vnd.github+json',
-                Authorization: `Bearer ${GIST_TOKEN}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                files: {
-                    [GIST_FILE]: {
-                        content: JSON.stringify(top10, null, 2),
-                    },
+        const res = await fetch(
+            `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+            {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/vnd.github+json',
+                    Authorization: `Bearer ${ACTIONS_TOKEN}`,
+                    'Content-Type': 'application/json',
                 },
-            }),
-        });
-        if (!res.ok) {
-            const err = await res.json();
+                body: JSON.stringify({
+                    ref: BRANCH,
+                    inputs: {
+                        name: name.substring(0, 10).toUpperCase(),
+                        score: String(score),
+                    },
+                }),
+            }
+        );
+
+        if (res.status === 204) {
+            console.info('[Leaderboard] Score soumis ! Mise à jour du leaderboard dans ~30s.');
+        } else {
+            const err = await res.json().catch(() => ({}));
             throw new Error(err.message || `HTTP ${res.status}`);
         }
-        console.info('[Leaderboard] Score soumis avec succès !');
     } catch (e) {
         console.warn('[Leaderboard] Erreur soumission :', e);
     }

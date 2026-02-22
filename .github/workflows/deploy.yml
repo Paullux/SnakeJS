@@ -25,14 +25,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Inject Gist config into leaderboard.js
+      - name: Inject config into leaderboard.js
         env:
-          GIST_TOKEN: ${{ vars.GIST_TOKEN }}
-          GIST_ID:    ${{ vars.GIST_ID }}
+          ACTIONS_TOKEN: ${{ vars.ACTIONS_TOKEN }}
+          GIST_ID:       ${{ vars.GIST_ID }}
+          REPO_OWNER:    ${{ github.repository_owner }}
+          REPO_NAME:     ${{ github.event.repository.name }}
         run: |
-          sed -i "s|__GIST_TOKEN__|${GIST_TOKEN}|g" leaderboard.js
-          sed -i "s|__GIST_ID__|${GIST_ID}|g"       leaderboard.js
-          echo "✅ Gist config injected"
+          sed -i "s|__ACTIONS_TOKEN__|${ACTIONS_TOKEN}|g" leaderboard.js
+          sed -i "s|__GIST_ID__|${GIST_ID}|g"             leaderboard.js
+          sed -i "s|__REPO_OWNER__|${REPO_OWNER}|g"        leaderboard.js
+          sed -i "s|__REPO_NAME__|${REPO_NAME}|g"          leaderboard.js
+          echo "✅ Config injectée (GIST_TOKEN reste secret, jamais exposé)"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
