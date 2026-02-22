@@ -21,7 +21,8 @@ const GIST_FILE = 'snake_scores.json';
 const WORKFLOW_FILE = 'submit-score.yml';
 const BRANCH = 'main';
 
-const IS_CONFIGURED = !ACTIONS_TOKEN.startsWith('__') && !GIST_ID.startsWith('__');
+const IS_CONFIGURED = !!ACTIONS_TOKEN && !ACTIONS_TOKEN.startsWith('__')
+    && !!GIST_ID && !GIST_ID.startsWith('__');
 
 // Données mock pour le développement local
 const MOCK_SCORES = [
