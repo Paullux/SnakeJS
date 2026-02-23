@@ -2,7 +2,7 @@
 
 > 🎮 Jeu Snake style Nokia 3310, hébergé sur GitHub Pages avec tableau des meilleurs scores sur GitHub Gist.
 
-**[▶ Jouer maintenant](https://YOUR_USERNAME.github.io/SnakeJS)**
+**[▶ Jouer maintenant](https://paullux.github.io/SnakeJS/)**
 
 ---
 
